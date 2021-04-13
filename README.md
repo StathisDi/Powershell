@@ -11,7 +11,7 @@ This repository includes powershell scripts for different uses.
 
 1) Windows 10 same wallpaper to all screens
 
-# Liecense
+# License
 
 All programs in this repo are free software: you can redistribute them, and/or modify
 them under the terms of the GNU General Public License as published by
