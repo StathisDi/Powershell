@@ -153,7 +153,7 @@ ForEach ($n in $list) {
           vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh -F $n
         }
         else {
-          vlog $n
+          vlog -f $n
         }
         return 0
       }
