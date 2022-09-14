@@ -1,0 +1,41 @@
+{
+  "GENERAL": [
+    {
+      "compilation_path": "work_path",
+      "use_hierarchy_files": "true",
+      "language": "VHDL"
+    }
+  ],
+  "FILES": [
+    {
+      "PARENT_PATH": "src_path",
+      "LIBRARY": "work",
+      "LANGUAGE": "VHDL",
+      "ORDER": [
+        "file1",
+        "file2"
+      ]
+    },
+    {
+      "PARENT_PATH": "src_v_path",
+      "LIBRARY": "work",
+      "LANGUAGE": "verilog",
+      "ORDER": [
+        "v_file1",
+        "v_file2"
+      ]
+    }
+  ],
+  "LIST_FILES": [
+    {
+      "PATH": "src_path",
+      "LIBRARY": "work",
+      "LANGUAGE": "VHDL"
+    }
+  ],
+  "Compilation": [
+    {
+      "SYN": "false"
+    }
+  ]
+}
