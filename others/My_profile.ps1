@@ -1,3 +1,1 @@
-Import-Module posh-git
-Import-Module oh-my-posh
-Set-PoshPrompt -Theme .my_bubbles.omp.json
+oh-my-posh init pwsh --config '<path>\blueish.omp.json' | Invoke-Expression
