@@ -1,11 +1,5 @@
 {
-  "GENERAL": [
-    {
-      "compilation_path": "work_path",
-      "use_hierarchy_files": "true",
-      "language": "VHDL"
-    }
-  ],
+  "compilation_path": "work_path",
   "FILES": [
     {
       "PARENT_PATH": "src_path",
@@ -36,6 +30,25 @@
   "Compilation": [
     {
       "SYN": "false"
+    }
+  ],
+  "SIMULATION": [
+    {
+      "run_sim": "True",
+      "opt": "False",
+      "command_line": "False",
+      "script": [
+        {
+          "use_script": "True",
+          "sim_script": "simulation_script_path"
+        }
+      ],
+      "no_script": [
+        {
+          "top_entity": "name_of_top",
+          "run_time": "15ns"
+        }
+      ]
     }
   ]
 }
