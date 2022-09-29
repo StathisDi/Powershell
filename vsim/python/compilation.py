@@ -40,6 +40,9 @@ class files():
       self.lang = lang
       self.order = order
       self.n_files = len(order)
+    
+    def __str__(self):
+      return f'files({self.src_path}, {self.lib}, {self.lang}, {self.order}, {self.n_files})'
 
 class configuration:
     def __init__(self, text):
@@ -52,11 +55,12 @@ class configuration:
             print("No \'compilation_path\' has been specified in the configuration file")
             exit()
 
+        self.fi = []
         if 'FILES' in self.config_data:
             self.files_length = len(self.config_data['FILES'])
             for f in self.config_data['FILES']:
-              print(f)
-              fi = files(f.get('PARENT_PATH'),f.get('LIBRARY'),f.get('LANGUAGE'),f.get('ORDER'))
+              self.fi.append(files(f.get('PARENT_PATH'),f.get('LIBRARY'),f.get('LANGUAGE'),f.get('ORDER')))
+            [print(i) for i in self.fi]
         else:
             print("No \'FILES\' has been specified in the configuration file")
             exit()
