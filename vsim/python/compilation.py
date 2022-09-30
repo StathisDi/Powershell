@@ -64,22 +64,22 @@ class list_files():
 
 
 class simulation():
-    def __init__(self, opt, command_line, use_script, sim_script='', top_entity='', run_time=''):
+    def __init__(self, opt, command_line, use_script, sim_script=None, top_entity=None, run_time=None):
         self.opt = opt
         self.command_line = command_line
         self.use_script = use_script
         self.sim_script = sim_script
         self.top_entity = top_entity
         self.run_time = run_time
-        if self.use_script:
-            if self.sim_script == '':
+        if self.use_script == True:
+            if self.sim_script == None:
                 print("No path for simulation script!")
                 exit()
             else:
-                if self.run_time != '' or self.top_entity != '':
-                    print("!!!Warning!!! Run time and top entity should be defined inside the simulation script.\n Values defined in the configuration file will be ignored!")
+                if self.run_time != None or self.top_entity != None:
+                    print("!!!Warning!!! Run time and top entity should be defined inside the simulation script.\nValues defined in the configuration file will be ignored!")
         else:
-            if self.top_entity == '':
+            if self.top_entity == None:
                 print("The top entity name is not defined!")
                 exit()
 
@@ -132,7 +132,17 @@ class configuration:
             print('Json file does not include configuration for simulation')
 
     def print_me(self):
-        print(self.config_data)
+        print("Configuration:")
+        print("Working path: ", self.source_dir)
+        print("\nCompilation of RTL files: ")
+        for x in self.fi:
+            print("   ", x)
+        print("\n\nCompilation of List files:")
+        for x in self.fi_list:
+            print("   ", x)
+        if self.simulation:
+            print("\n\nSimulation:")
+            print("   ", self.sim_conf)
 
 
 if __name__ == '__main__':
@@ -140,3 +150,4 @@ if __name__ == '__main__':
     print(args.json_file)
     print(args.s)
     t1 = configuration(args.json_file)
+    t1.print_me()

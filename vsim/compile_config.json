@@ -40,7 +40,7 @@
     {
       "opt": "False",
       "command_line": "False",
-      "use_script": "True",
+      "use_script": "False",
       "sim_script": "simulation_script_path",
       "top_entity": "name_of_top",
       "run_time": "15ns"
