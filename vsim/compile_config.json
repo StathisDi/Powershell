@@ -5,50 +5,45 @@
       "PARENT_PATH": "src_path",
       "LIBRARY": "work",
       "LANGUAGE": "VHDL",
-      "ORDER": [
+      "ORDER": 1,
+      "check_for_synthesis": "False",
+      "HIERARCHY": [
         "file1",
         "file2"
-      ]
+      ],
+      "MIXED": "False"
     },
     {
       "PARENT_PATH": "src_v_path",
       "LIBRARY": "work",
       "LANGUAGE": "verilog",
-      "ORDER": [
+      "ORDER": 2,
+      "check_for_synthesis": "True",
+      "HIERARCHY": [
         "v_file1",
         "v_file2"
-      ]
+      ],
+      "MIXED": "False"
     }
   ],
   "LIST_FILES": [
     {
       "PATH": "src_path",
       "LIBRARY": "work",
-      "LANGUAGE": "VHDL"
-    }
-  ],
-  "Compilation": [
-    {
-      "SYN": "false"
+      "LANGUAGE": "VHDL",
+      "ORDER": 3,
+      "check_for_synthesis": "False",
+      "MIXED": "False"
     }
   ],
   "SIMULATION": [
     {
-      "run_sim": "True",
       "opt": "False",
       "command_line": "False",
-      "script": [
-        {
-          "use_script": "True",
-          "sim_script": "simulation_script_path"
-        }
-      ],
-      "no_script": [
-        {
-          "top_entity": "name_of_top",
-          "run_time": "15ns"
-        }
-      ]
+      "use_script": "True",
+      "sim_script": "simulation_script_path",
+      "top_entity": "name_of_top",
+      "run_time": "15ns"
     }
   ]
 }
