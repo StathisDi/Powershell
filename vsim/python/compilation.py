@@ -24,6 +24,7 @@
 import json
 import sys
 import argparse
+import platform
 
 
 def read_arg():
@@ -144,10 +145,35 @@ class configuration:
             print("\n\nSimulation:")
             print("   ", self.sim_conf)
 
+def compile_windows(files, list_files):
+  for f in files:
+    print(f)
+  for fi in list_files:
+    print(fi)
+
+def simulation_windows(sim_conf):
+  print("simulation windows")
 
 if __name__ == '__main__':
     args = read_arg()
-    print(args.json_file)
-    print(args.s)
-    t1 = configuration(args.json_file)
-    t1.print_me()
+    #print(args.json_file)
+    #print(args.s)
+    conf = configuration(args.json_file)
+    conf.print_me()
+    OS = platform.system()
+    print(OS)
+    if OS == "Windows":
+      compile_windows(conf.fi, conf.fi_list)
+    elif OS == "Linux":
+      print("Helo Linux")
+      # @TODO complete the compilation for linux (call of script)
+    else:
+      print("Not supported OS!")
+      exit()
+    
+    if args.s:
+      if conf.simulation:
+        simulation_windows(conf.sim_conf)
+      else:
+        print("Simulation settings not defined in the configuration file!")
+        exit()
