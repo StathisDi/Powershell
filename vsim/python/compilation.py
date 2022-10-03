@@ -173,7 +173,14 @@ if __name__ == '__main__':
     
     if args.s:
       if conf.simulation:
-        simulation_windows(conf.sim_conf)
+        if OS == "Windows":
+          simulation_windows(conf.sim_conf)
+        elif OS == "Linux":
+          print("Helo Linux")
+          # @TODO complete the compilation for linux (call of script)
+        else:
+          print("Not supported OS!")
+          exit() 
       else:
         print("Simulation settings not defined in the configuration file!")
         exit()
