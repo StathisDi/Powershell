@@ -1,17 +1,19 @@
 {
+  "path_pwsh": "./powershell/",
+  "path_bash": "./bash/",
   "compilation_path": "work_path",
   "FILES": [
     {
-      "PARENT_PATH": "src_path",
+      "PARENT_PATH": "src_path1",
       "LIBRARY": "work",
-      "LANGUAGE": "VHDL",
+      "LANGUAGE": "VHDL 2008",
       "ORDER": 1,
       "check_for_synthesis": "False",
       "HIERARCHY": [
         "file1",
         "file2"
       ],
-      "MIXED": "False"
+      "MIXED": "True"
     },
     {
       "PARENT_PATH": "src_v_path",

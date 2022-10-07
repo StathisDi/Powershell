@@ -16,10 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #>
-Param($src_path, $VHDL = 2008, [switch] $help, $work = "work", [switch] $clean, $f, $sim, [switch] $syn, $UVM, [switch] $mix)
+Param($src_path, $VHDL = 2008, [switch] $help, [string[]]$prj_path = ".", $work = "work", [switch] $clean, $f, $sim, [switch] $syn, $UVM, [switch] $mix)
 
 
-$work_path = $PWD.ToString()
+#$work_path = $PWD.ToString()
+$work_path = $prj_path
 $work_path = $work_path + "\" + $work
 
 if (($help) -or (!$src_path)) {
@@ -42,7 +43,7 @@ if (($help) -or (!$src_path)) {
     Write-Host "This script can be used to compile one or multiple HDL files."
     Write-Host "It requres as an input the path to a file or to a directory with all the HDL Files"
     Write-Host "It requires either src_path or clean argument"
-    Write-Host "-src_path : path to file or directory"
+    Write-Host "-src_path : path to file or directory"    Write-Host "-prj_path : path to the project directory (default is the current path)"
     Write-Host "-VHDL     : Specify a string that is the version of VHDL to be used"
     Write-Host "-work     : Specify a string that is the name of work library (default is `"work`")"
     Write-Host "-clean    : Completly removes the work library, if it used together with a valid src_path it rebuilds the work library"

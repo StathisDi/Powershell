@@ -25,22 +25,43 @@ import json
 import sys
 import argparse
 import platform
+import subprocess
 
 
 def read_arg():
-    parser = argparse.ArgumentParser(description='Python script to parse a configuration file and compile/simulate RTL using vsim')
-    parser.add_argument('json_file', help='Path to the configuration file.')
-    parser.add_argument('-s', action='store_true', help='Run simulation after compilation', default=False)
+    parser = argparse.ArgumentParser(
+        description="Python script to parse a configuration file and compile/simulate RTL using vsim"
+    )
+    parser.add_argument("json_file", help="Path to the configuration file.")
+    parser.add_argument(
+        "-s",
+        action="store_true",
+        help="Run simulation after compilation",
+        default=False,
+    )
 
     args = parser.parse_args()
-    return(args)
+    return args
 
 
-class files():
+class files:
     def __init__(self, src_path, lib, lang, order, check_syn, hier, mixed):
         self.src_path = src_path
+        print(self.src_path)
         self.lib = lib
         self.lang = lang
+        if (
+            self.lang != "VHDL 2008"
+            and self.lang != "VHDL 2002"
+            and self.lang != "VHDL 93"
+            and self.lang != "VHDL 87"
+            and self.lang != "verilog"
+            and self.lang != "SV"
+        ):
+            print(
+                "Language defined in config file is not valid.\nValid options are:\n\tVHDL 2008\n\tVHDL 2002\n\tVHDL 93\n\tVHDL 87\n\tverilog\n\tSV"
+            )
+            exit()
         self.order = order
         self.check_syn = check_syn
         self.hier = hier
@@ -48,10 +69,13 @@ class files():
         self.mixed = mixed
 
     def __str__(self):
-        return f'files({self.src_path}, {self.lib}, {self.lang}, {self.order}, {self.check_syn}, {self.hier}, {self.n_files}, {self.mixed})'
+        return f"files({self.src_path}, {self.lib}, {self.lang}, {self.order}, {self.check_syn}, {self.hier}, {self.n_files}, {self.mixed})"
+
+    def get_ty(self):
+        return "file"
 
 
-class list_files():
+class list_files:
     def __init__(self, src_path, lib, lang, order, check_syn, mixed):
         self.src_path = src_path
         self.lib = lib
@@ -61,11 +85,22 @@ class list_files():
         self.mixed = mixed
 
     def __str__(self):
-        return f'list files({self.src_path}, {self.lib}, {self.lang}, {self.order},{self.check_syn}, {self.mixed})'
+        return f"list files({self.src_path}, {self.lib}, {self.lang}, {self.order},{self.check_syn}, {self.mixed})"
+
+    def get_ty(self):
+        return "list"
 
 
-class simulation():
-    def __init__(self, opt, command_line, use_script, sim_script=None, top_entity=None, run_time=None):
+class simulation:
+    def __init__(
+        self,
+        opt,
+        command_line,
+        use_script,
+        sim_script=None,
+        top_entity=None,
+        run_time=None,
+    ):
         self.opt = opt
         self.command_line = command_line
         self.use_script = use_script
@@ -78,59 +113,101 @@ class simulation():
                 exit()
             else:
                 if self.run_time != None or self.top_entity != None:
-                    print("!!!Warning!!! Run time and top entity should be defined inside the simulation script.\nValues defined in the configuration file will be ignored!")
+                    print(
+                        "!!!Warning!!! Run time and top entity should be defined inside the simulation script.\nValues defined in the configuration file will be ignored!"
+                    )
         else:
             if self.top_entity == None:
                 print("The top entity name is not defined!")
                 exit()
 
     def __str__(self):
-        return f'Simulation settings( optimizations = {self.opt}, command line = {self.command_line}, use script = {self.use_script}, sim script path = {self.sim_script}, top entity = {self.top_entity}, run time = {self.run_time})'
+        return f"Simulation settings( optimizations = {self.opt}, command line = {self.command_line}, use script = {self.use_script}, sim script path = {self.sim_script}, top entity = {self.top_entity}, run time = {self.run_time})"
 
 
 class configuration:
     def __init__(self, config_path):
         # Get the configuration path and open the file
         self.file_path = config_path
-        with open(self.file_path, 'r') as self.config_file:
+        with open(self.file_path, "r") as self.config_file:
             self.config_data = json.load(self.config_file)
 
         # Parse the compilation/project path
-        if 'compilation_path' in self.config_data:
-            self.source_dir = self.config_data.get('compilation_path')
+        if "compilation_path" in self.config_data:
+            self.source_dir = self.config_data.get("compilation_path")
         else:
-            print("No \'compilation_path\' has been defined in the configuration file")
+            print("No 'compilation_path' has been defined in the configuration file")
+            exit()
+
+        # Parse the compilation/project path
+        if "path_pwsh" in self.config_data:
+            self.path_pwsh = self.config_data.get("path_pwsh")
+        else:
+            print("No 'path_pwsh' has been defined in the configuration file")
+            exit()
+
+        # Parse the compilation/project path
+        if "path_bash" in self.config_data:
+            self.path_bash = self.config_data.get("path_bash")
+        else:
+            print("No 'path_bash' has been defined in the configuration file")
             exit()
 
         # Parse the file section (get instruction for RTL files and libraries)
         self.files_length = 0
-        if 'FILES' in self.config_data:
-            self.files_length = len(self.config_data['FILES'])
+        if "FILES" in self.config_data:
+            self.files_length = len(self.config_data["FILES"])
             self.fi = []
-            for f in self.config_data['FILES']:
-                self.fi.append(files(f.get('PARENT_PATH'), f.get('LIBRARY'), f.get('LANGUAGE'), f.get('ORDER'), f.get('check_for_synthesis'), f.get('HIERARCHY'), f.get('MIXED')))
+            for f in self.config_data["FILES"]:
+                self.fi.append(
+                    files(
+                        f.get("PARENT_PATH"),
+                        f.get("LIBRARY"),
+                        f.get("LANGUAGE"),
+                        f.get("ORDER"),
+                        f.get("check_for_synthesis"),
+                        f.get("HIERARCHY"),
+                        f.get("MIXED"),
+                    )
+                )
         else:
-            print("No \'FILES\' has been defined in the configuration file")
+            print("No 'FILES' has been defined in the configuration file")
             exit()
 
         # Parse the list_files section (get instruction for hierarchy files )
         self.files_list_length = 0
-        if 'LIST_FILES' in self.config_data:
-            self.files_list_length = len(self.config_data['LIST_FILES'])
+        if "LIST_FILES" in self.config_data:
+            self.files_list_length = len(self.config_data["LIST_FILES"])
             self.fi_list = []
-            for f in self.config_data['LIST_FILES']:
-                self.fi_list.append(list_files(f.get('PATH'), f.get('LIBRARY'), f.get('LANGUAGE'), f.get('ORDER'), f.get('check_for_synthesis'), f.get('MIXED')))
+            for f in self.config_data["LIST_FILES"]:
+                self.fi_list.append(
+                    list_files(
+                        f.get("PATH"),
+                        f.get("LIBRARY"),
+                        f.get("LANGUAGE"),
+                        f.get("ORDER"),
+                        f.get("check_for_synthesis"),
+                        f.get("MIXED"),
+                    )
+                )
         else:
-            print("No \'LIST_FILES\' has been defined in the configuration file")
+            print("No 'LIST_FILES' has been defined in the configuration file")
 
         # Parse the Simulation section (get instructions for the simulation after the compilation)
         self.simulation = False
-        if 'SIMULATION' in self.config_data:
-            sim = self.config_data.get('SIMULATION')
+        if "SIMULATION" in self.config_data:
+            sim = self.config_data.get("SIMULATION")
             self.simulation = True
-            self.sim_conf = simulation(sim[0].get('opt'), sim[0].get('command_line'), sim[0].get('use_script'), sim[0].get('sim_script'), sim[0].get('top_entity'), sim[0].get('run_time'))
+            self.sim_conf = simulation(
+                sim[0].get("opt"),
+                sim[0].get("command_line"),
+                sim[0].get("use_script"),
+                sim[0].get("sim_script"),
+                sim[0].get("top_entity"),
+                sim[0].get("run_time"),
+            )
         else:
-            print('Json file does not include configuration for simulation')
+            print("Json file does not include configuration for simulation")
 
     def print_me(self):
         print("Configuration:")
@@ -145,42 +222,82 @@ class configuration:
             print("\n\nSimulation:")
             print("   ", self.sim_conf)
 
-def compile_windows(files, list_files):
-  for f in files:
-    print(f)
-  for fi in list_files:
-    print(fi)
+
+def run(cmd):
+    return subprocess.run(["pwsh.exe", "-Command", cmd], stdout=sys.stdout)
+
+
+def compile_windows(files, list_files, path):
+    size = len(files) + len(list_files)
+    ordered_list = [None] * size
+    for f in files:
+        ordered_list[f.order - 1] = f
+    for fi in list_files:
+        ordered_list[fi.order - 1] = fi
+    for x in ordered_list:
+        if x.get_ty() == "file":
+            # print(x.get_ty(), x)
+            flags = ""
+            if x.check_syn == "True":
+                flags = " -syn"
+
+            if x.mixed == "True":
+                flags += " -mix"
+
+            files = x.hier
+            for f in files:
+                command = (
+                    path + "compile.sh"
+                    " -src_path "
+                    + x.src_path
+                    + "/"
+                    + f
+                    + " -lang "
+                    + x.lang
+                    + " -work "
+                    + x.lib
+                    + flags
+                )
+                print(command)
+
+        elif x.get_ty() == "list":
+            print(x.get_ty(), x)
+        else:
+            print("ERROR: not valid type")
+            exit(-1)
+
 
 def simulation_windows(sim_conf):
-  print("simulation windows")
+    print("simulation windows")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = read_arg()
-    #print(args.json_file)
-    #print(args.s)
+    # print(args.json_file)
+    # print(args.s)
     conf = configuration(args.json_file)
     conf.print_me()
     OS = platform.system()
     print(OS)
     if OS == "Windows":
-      compile_windows(conf.fi, conf.fi_list)
+        compile_windows(conf.fi, conf.fi_list, conf.path_pwsh)
     elif OS == "Linux":
-      print("Helo Linux")
-      # @TODO complete the compilation for linux (call of script)
+        print("Helo Linux")
+        # @TODO complete the compilation for linux (call of script)
     else:
-      print("Not supported OS!")
-      exit()
-    
-    if args.s:
-      if conf.simulation:
-        if OS == "Windows":
-          simulation_windows(conf.sim_conf)
-        elif OS == "Linux":
-          print("Helo Linux")
-          # @TODO complete the compilation for linux (call of script)
-        else:
-          print("Not supported OS!")
-          exit() 
-      else:
-        print("Simulation settings not defined in the configuration file!")
+        print("Not supported OS!")
         exit()
+
+    if args.s:
+        if conf.simulation:
+            if OS == "Windows":
+                simulation_windows(conf.sim_conf)
+            elif OS == "Linux":
+                print("Helo Linux")
+                # @TODO complete the compilation for linux (call of script)
+            else:
+                print("Not supported OS!")
+                exit()
+        else:
+            print("Simulation settings not defined in the configuration file!")
+            exit()
