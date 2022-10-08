@@ -16,10 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #>
-Param($src_path, $VHDL = 2008, [switch] $help, [string[]]$prj_path = ".", $work = "work", [switch] $clean, $f, $sim, [switch] $syn, $UVM, [switch] $mix)
+Param( [string[]] $src_path, [string[]] $lang = "VHDL 2008", [switch] $help, [string[]]$prj_path = ".", $work = "work", [switch] $clean, [switch] $f, [switch] $syn, [string[]] $UVM, [switch] $mix, [string[]] $misc_options = "")
 
-
-#$work_path = $PWD.ToString()
+#=======================================================================================================#
+# Set up 
+#=======================================================================================================#
 $work_path = $prj_path
 $work_path = $work_path + "\" + $work
 
@@ -41,13 +42,27 @@ if (($help) -or (!$src_path)) {
   }
   else {
     Write-Host "This script can be used to compile one or multiple HDL files."
+    Write-Host "It requres as an input the path to a file"
+    Write-Host "It requires either src_path or clean argument"
+    Write-Host "The `""$src_path "`" should be a path to a directory or file."
+    Write-Host "This script can be used to compile one or multiple HDL files."
     Write-Host "It requres as an input the path to a file or to a directory with all the HDL Files"
     Write-Host "It requires either src_path or clean argument"
-    Write-Host "-src_path : path to file or directory"    Write-Host "-prj_path : path to the project directory (default is the current path)"
-    Write-Host "-VHDL     : Specify a string that is the version of VHDL to be used"
+    Write-Host "-src_path : path to file"
+    Write-Host "-lang     : Specify a string that is the HDL langauge to be used (and its version)"
+    Write-Host "            Accepted options:"
+    Write-Host "                VHDL: "
+    Write-Host "                      `"2008`""
+    Write-Host "                      `"2002`""
+    Write-Host "                      `"93`""
+    Write-Host "                      `"87`""
+    Write-Host "                Verilog: "
+    Write-Host "                      `"verilog`""
+    Write-Host "                System Verilog: "
+    Write-Host "                      `"SV`""
     Write-Host "-work     : Specify a string that is the name of work library (default is `"work`")"
     Write-Host "-clean    : Completly removes the work library, if it used together with a valid src_path it rebuilds the work library"
-    Write-Host "-f        : Specify file with an ordered list of the HDL files, possible values are VHDL or Verilog"
+    Write-Host "-f        : File is an ordered list of the HDL files"
     write-Host "-syn      : Enables flag -check_synthesis"
     Write-Host "-UVM      : Specifies the UVM home directory. If left empty together with an .sv file, the compilation is done as simple sv."
     Write-Host "-mix      : Use this command while compilling VHDL it will compile using the mixedsvvh argument"
@@ -56,7 +71,7 @@ if (($help) -or (!$src_path)) {
   }
 }
 
-$custom_flag = ""
+$custom_flag = $misc_options
 
 $UVM_FLAG = $false
 if ($UVM) {
@@ -69,11 +84,21 @@ if ((-not (Test-Path $src_path))) {
   Write-Host "This script can be used to compile one or multiple HDL files."
   Write-Host "It requres as an input the path to a file or to a directory with all the HDL Files"
   Write-Host "It requires either src_path or clean argument"
-  Write-Host "-src_path : path to file or directory"
-  Write-Host "-VHDL     : Specify a string that is the version of VHDL to be used"
+  Write-Host "-src_path : path to file"
+  Write-Host "-lang     : Specify a string that is the HDL langauge to be used (and its version)"
+  Write-Host "            Accepted options:"
+  Write-Host "                VHDL: "
+  Write-Host "                      `"2008`""
+  Write-Host "                      `"2002`""
+  Write-Host "                      `"93`""
+  Write-Host "                      `"87`""
+  Write-Host "                Verilog: "
+  Write-Host "                      `"verilog`""
+  Write-Host "                System Verilog: "
+  Write-Host "                      `"SV`""
   Write-Host "-work     : Specify a string that is the name of work library (default is `"work`")"
   Write-Host "-clean    : Completly removes the work library, if it used together with a valid src_path it rebuilds the work library"
-  Write-Host "-f        : Specify file with an ordered list of the HDL files, possible values are VHDL or Verilog"
+  Write-Host "-f        : File is an ordered list of the HDL files"
   write-Host "-syn      : Enables flag -check_synthesis"
   Write-Host "-UVM      : Specifies the UVM home directory. If left empty together with an .sv file, the compilation is done as simple sv."
   Write-Host "-mix      : Use this command while compilling VHDL it will compile using the mixedsvvh argument"
@@ -81,13 +106,31 @@ if ((-not (Test-Path $src_path))) {
   return -1
 }
 
-if ((-not (($f -eq "Verilog") -or ($f -eq "VHDL"))) -and (-not ($null -eq $f))) {
-  Write-Host "-f should only be Verilog or VHDL"
-  return
+# Set the langauge flags
+$vhdlf = $false
+$SVf = $false
+$verilogf = $false
+if (($lang -eq "2008") -or ($lang -eq "2002") -or ($lang -eq "93") -or ($lang -eq "87") -or ($lang -eq "ams99") -or ($lang -eq "ams07")) {
+  $vhdlf = $true
 }
-
-if (-not (($VHDL -eq 2008) -or ($VHDL -eq 2002) -or ($VHDL -eq 93) -or ($VHDL -eq 87) -or ($VHDL -eq "ams99") -or ($VHDL -eq "ams07"))) {
-  Write-Host "Not a valid VHDL version"
+elseif ($lang -eq "verilog") {
+  $verilogf = $true
+}
+elseif ($lang -eq "SV") {
+  $SVf = $true
+}
+else {
+  Write-Host "Not a valid langauge selection."
+  Write-Host "            Accepted options:"
+  Write-Host "                VHDL: "
+  Write-Host "                      `"2008`""
+  Write-Host "                      `"2002`""
+  Write-Host "                      `"93`""
+  Write-Host "                      `"87`""
+  Write-Host "                Verilog: "
+  Write-Host "                      `"verilog`""
+  Write-Host "                System Verilog: "
+  Write-Host "                      `"SV`""
   return
 }
 
@@ -106,64 +149,56 @@ else {
   }
 }
 
-$list = Get-ChildItem $src_path -Recurse
-$flag = $true
-ForEach ($n in $list) {
-  $vhdlf = [IO.Path]::GetExtension($n) -eq '.vhd' -or [IO.Path]::GetExtension($n) -eq '.vhdl'
-  if ($vhdlf) {
-    if ($syn) {
-      vcom -$VHDL -check_synthesis $custom_flag $n 
-    }
-    else {
-      vcom -$VHDL $custom_flag $n 
-    }
-    Write-Host $n
-    $flag = $false
+#=======================================================================================================#
+# Compile single files
+#=======================================================================================================#
+
+
+if ($vhdlf) {
+  if ($syn) {
+    Write-Host "vcom -$lang -check_synthesis $custom_flag $src_path" 
   }
-  $verilog = [IO.Path]::GetExtension($n) -eq '.v' -or [IO.Path]::GetExtension($n) -eq '.sv'
-  if ($verilog) {
-    if ($UVM_FLAG) {
-      vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh $n
-    }
-    else {
-      vlog $n
-    }
-    Write-Host $n
-    $flag = $false
+  else {
+    Write-Host "vcom -$lang $custom_flag $src_path"
   }
-  if ((-not($vhdlf -or $verilog)) -and ([IO.Path]::GetExtension($n) -eq '.f')) {
-    if ($null -eq $f) {
-      Write-Host "No VHDL or Verilog file found and -f not set"
-    }
-    else {
-      if ($f -eq "VHDL") {
-        if ($mix) {
-          $custom_flag = "-mixedsvvh"
-        }
-        Write-Host "Reading list file (VHDL)"
-        if ($syn) {
-          vcom -F $n -$VHDL -check_synthesis $custom_flag
-        }
-        else {
-          vcom -F $n -$VHDL $custom_flag
-        }
-                
-      }
-      else {
-        if ($UVM_FLAG) {
-          vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh -F $n
-        }
-        else {
-          vlog -f $n
-        }
-        return 0
-      }
-    }
-    $flag = $false
-  }
+  Write-Host "Copilation of $src_path completed"
+
 }
 
-if ($flag) {
-  Write-Host "No list, vhdl or verilog files found"
-  return
+if ($verilogf -or $SVf) {
+  if ($UVM_FLAG) {
+    Write-Host "vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh $src_path"
+  }
+  else {
+    Write-Host "vlog $src_path"
+  }
+  Write-Host "Copilation of $src_path completed"
+}
+
+#=======================================================================================================#
+# Compile lists
+#=======================================================================================================#
+
+if ($f) {
+  if ($vhdlf) {}
+  if ($mix) {
+    $custom_flag = "-mixedsvvh"
+  }
+  Write-Host "Reading list file (VHDL)"
+  if ($syn) {
+    vcom -F $n -$VHDL -check_synthesis $custom_flag
+  }
+  else {
+    vcom -F $n -$VHDL $custom_flag
+  }
+                
+}
+else {
+  if ($UVM_FLAG) {
+    vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh -F $n
+  }
+  else {
+    vlog -f $n
+  }
+  return 0
 }

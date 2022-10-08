@@ -51,10 +51,10 @@ class files:
         self.lib = lib
         self.lang = lang
         if (
-            self.lang != "VHDL 2008"
-            and self.lang != "VHDL 2002"
-            and self.lang != "VHDL 93"
-            and self.lang != "VHDL 87"
+            self.lang != "2008"
+            and self.lang != "2002"
+            and self.lang != "93"
+            and self.lang != "87"
             and self.lang != "verilog"
             and self.lang != "SV"
         ):

@@ -6,7 +6,7 @@
     {
       "PARENT_PATH": "src_path1",
       "LIBRARY": "work",
-      "LANGUAGE": "VHDL 2008",
+      "LANGUAGE": "2008",
       "ORDER": 1,
       "check_for_synthesis": "False",
       "HIERARCHY": [
@@ -32,7 +32,7 @@
     {
       "PATH": "src_path",
       "LIBRARY": "work",
-      "LANGUAGE": "VHDL",
+      "LANGUAGE": "2008",
       "ORDER": 3,
       "check_for_synthesis": "False",
       "MIXED": "False"
