@@ -30,9 +30,9 @@
   ],
   "LIST_FILES": [
     {
-      "PATH": "src_path",
+      "PATH": "./test_v.f",
       "LIBRARY": "work2",
-      "LANGUAGE": "2008",
+      "LANGUAGE": "verilog",
       "ORDER": 3,
       "check_for_synthesis": "False",
       "MIXED": "False"

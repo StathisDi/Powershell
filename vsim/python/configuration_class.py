@@ -30,8 +30,9 @@ class configuration:
     def __init__(self, config_path):
         # Get the configuration path and open the file
         self.file_path = config_path
-        with open(self.file_path, "r") as self.config_file:
-            self.config_data = json.load(self.config_file)
+        with open(self.file_path, "r") as config_file:
+            self.config_data = json.load(config_file)
+            config_file.close
 
         # Parse the compilation/project path
         if "compilation_path" in self.config_data:

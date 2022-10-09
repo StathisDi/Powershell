@@ -30,6 +30,7 @@ from simulation_class import simulation
 from list_files_class import list_files
 from files_class import files
 from configuration_class import configuration
+from pathlib import Path
 
 
 def read_arg():
@@ -83,7 +84,7 @@ def compile_windows(files, list_files, path, prj_path, libs):
                     path + "compile.ps1"
                     " -src_path "
                     + x.src_path
-                    + "/"
+                    + "\\"
                     + f
                     + " -prj_path "
                     + prj_path
@@ -111,7 +112,25 @@ def compile_windows(files, list_files, path, prj_path, libs):
                 )
                 pwsh_run(command)
             else:
-                print("Not VHDL")
+                with open(x.src_path, "r") as list_f:
+                    p = Path(x.src_path)
+                    for l in list_f:
+                        command = (
+                            path + "compile.ps1"
+                            " -src_path "
+                            + str(p.resolve().parents[0])
+                            + "\\"
+                            + l.strip()
+                            + " -prj_path "
+                            + prj_path
+                            + " -lang "
+                            + x.lang
+                            + " -work "
+                            + x.lib
+                            + flags
+                        )
+                        pwsh_run(command)
+                    list_f.close()
         else:
             print("ERROR: not valid type")
             exit(-1)
