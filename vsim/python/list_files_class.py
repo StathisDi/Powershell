@@ -26,9 +26,43 @@ class list_files:
         self.src_path = src_path
         self.lib = lib
         self.lang = lang
+        if (
+            self.lang != "2008"
+            and self.lang != "2002"
+            and self.lang != "93"
+            and self.lang != "87"
+            and self.lang != "verilog"
+            and self.lang != "vlog01compat"
+            and self.lang != "vlog95compat"
+            and self.lang != "sv"
+            and self.lang != "sv05compat"
+            and self.lang != "sv09compat"
+            and self.lang != "sv12compat"
+        ):
+            print(
+                "Language defined in config file is not valid.\nValid options are:\n\tVHDL 2008\n\tVHDL 2002\n\tVHDL 93\n\tVHDL 87\n\tverilog\n\tvlog01compat\n\tvlog95compat\n\tsv\n\tsv05compat\n\tsv09compat\n\tsv12compat"
+            )
+            exit()
         self.order = order
         self.check_syn = check_syn
         self.mixed = mixed
+
+    def get_lang(self):
+        if (
+            self.lang == "2008"
+            or self.lang == "2002"
+            or self.lang == "93"
+            or self.lang == "97"
+        ):
+            return "VHDL"
+        elif (
+            self.lang == "verilog"
+            or self.lang == "vlog01compat"
+            or self.lang == "vlog95compat"
+        ):
+            return "verilog"
+        else:
+            return "sv"
 
     def __str__(self):
         return f"list files({self.src_path}, {self.lib}, {self.lang}, {self.order},{self.check_syn}, {self.mixed})"

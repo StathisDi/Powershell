@@ -55,3 +55,20 @@ class files:
 
     def get_ty(self):
         return "file"
+
+    def get_lang(self):
+        if (
+            self.lang == "2008"
+            or self.lang == "2002"
+            or self.lang == "93"
+            or self.lang == "97"
+        ):
+            return "VHDL"
+        elif (
+            self.lang == "verilog"
+            or self.lang == "vlog01compat"
+            or self.lang == "vlog95compat"
+        ):
+            return "verilog"
+        else:
+            return "sv"

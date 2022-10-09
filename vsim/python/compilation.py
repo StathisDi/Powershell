@@ -96,8 +96,22 @@ def compile_windows(files, list_files, path, prj_path, libs):
                 pwsh_run(command)
 
         elif x.get_ty() == "list":
-            # @TODO fix the list compilation, need to spilt the verilog from vhdl, verilog we have to read the file
-            print(x.get_ty(), x)
+            if x.get_lang() == "VHDL":
+                command = (
+                    path + "compile.ps1"
+                    " -src_path "
+                    + x.src_path
+                    + " -prj_path "
+                    + prj_path
+                    + " -lang "
+                    + x.lang
+                    + " -f -work "
+                    + x.lib
+                    + flags
+                )
+                pwsh_run(command)
+            else:
+                print("Not VHDL")
         else:
             print("ERROR: not valid type")
             exit(-1)
