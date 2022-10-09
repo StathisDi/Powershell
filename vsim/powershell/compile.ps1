@@ -21,8 +21,10 @@ Param( [string[]] $src_path, [string[]] $lang = "VHDL 2008", [switch] $help, [st
 #=======================================================================================================#
 # Set up 
 #=======================================================================================================#
-$work_path = $prj_path
-$work_path = $work_path + "\" + $work
+$work_path = "$prj_path\"
+Write-Host $work_path
+$work_path += $work
+Write-Host $work_path
 
 if (($help) -or (!$src_path)) {
   if ($clean) {
@@ -58,8 +60,13 @@ if (($help) -or (!$src_path)) {
     Write-Host "                      `"87`""
     Write-Host "                Verilog: "
     Write-Host "                      `"verilog`""
+    Write-Host "                      `"vlog01compat`""
+    Write-Host "                      `"vlog95compat`""
     Write-Host "                System Verilog: "
-    Write-Host "                      `"SV`""
+    Write-Host "                      `"sv`""
+    Write-Host "                      `"sv05compat`""
+    Write-Host "                      `"sv09compat`""
+    Write-Host "                      `"sv12compat`""
     Write-Host "-work     : Specify a string that is the name of work library (default is `"work`")"
     Write-Host "-clean    : Completly removes the work library, if it used together with a valid src_path it rebuilds the work library"
     Write-Host "-f        : File is an ordered list of the HDL files"
@@ -67,7 +74,7 @@ if (($help) -or (!$src_path)) {
     Write-Host "-UVM      : Specifies the UVM home directory. If left empty together with an .sv file, the compilation is done as simple sv."
     Write-Host "-mix      : Use this command while compilling VHDL it will compile using the mixedsvvh argument"
     Write-Host "-help     : Prints this message"
-    return
+    return -3
   }
 }
 
@@ -94,8 +101,13 @@ if ((-not (Test-Path $src_path))) {
   Write-Host "                      `"87`""
   Write-Host "                Verilog: "
   Write-Host "                      `"verilog`""
+  Write-Host "                      `"vlog01compat`""
+  Write-Host "                      `"vlog95compat`""
   Write-Host "                System Verilog: "
-  Write-Host "                      `"SV`""
+  Write-Host "                      `"sv`""
+  Write-Host "                      `"sv05compat`""
+  Write-Host "                      `"sv09compat`""
+  Write-Host "                      `"sv12compat`""
   Write-Host "-work     : Specify a string that is the name of work library (default is `"work`")"
   Write-Host "-clean    : Completly removes the work library, if it used together with a valid src_path it rebuilds the work library"
   Write-Host "-f        : File is an ordered list of the HDL files"
@@ -113,10 +125,10 @@ $verilogf = $false
 if (($lang -eq "2008") -or ($lang -eq "2002") -or ($lang -eq "93") -or ($lang -eq "87") -or ($lang -eq "ams99") -or ($lang -eq "ams07")) {
   $vhdlf = $true
 }
-elseif ($lang -eq "verilog") {
+elseif (($lang -eq "verilog") -or ($lang -eq "vlog01compat") -or ($lang -eq "vlog95compat")) {
   $verilogf = $true
 }
-elseif ($lang -eq "SV") {
+elseif (($lang -eq "sv") -or ($lang -eq "sv05compat") -or ($lang -eq "sv09compat") -or ($lang -eq "sv12compat")) {
   $SVf = $true
 }
 else {
@@ -129,10 +141,17 @@ else {
   Write-Host "                      `"87`""
   Write-Host "                Verilog: "
   Write-Host "                      `"verilog`""
+  Write-Host "                      `"vlog01compat`""
+  Write-Host "                      `"vlog95compat`""
   Write-Host "                System Verilog: "
-  Write-Host "                      `"SV`""
-  return
+  Write-Host "                      `"sv`""
+  Write-Host "                      `"sv05compat`""
+  Write-Host "                      `"sv09compat`""
+  Write-Host "                      `"sv12compat`""
+  return -2
 }
+
+Write-Host "Working library path: $work_path"
 
 if (!(Test-Path $work_path)) {
   Write-Host "Work Library does not exist, creating work Library"
@@ -149,30 +168,46 @@ else {
   }
 }
 
+if ($vhdlf) {
+  if ($mix) {
+    $custom_flag = "-mixedsvvh " + $custom_flag
+  }
+
+  if ($syn) {
+    $custom_flag = "-check_synthesis " + $custom_flag
+  }
+}
 #=======================================================================================================#
 # Compile single files
 #=======================================================================================================#
 
 
 if ($vhdlf) {
-  if ($syn) {
-    Write-Host "vcom -$lang -check_synthesis $custom_flag $src_path" 
-  }
-  else {
-    Write-Host "vcom -$lang $custom_flag $src_path"
-  }
+  vcom -$lang $custom_flag $src_path
   Write-Host "Copilation of $src_path completed"
-
 }
-
-if ($verilogf -or $SVf) {
-  if ($UVM_FLAG) {
-    Write-Host "vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh $src_path"
+elseif ($verilogf -or $SVf) {
+  if ($lang -eq "verilog") {
+    if ($UVM_FLAG) {
+      vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh $custom_flag $src_path
+    }
+    else {
+      vlog $custom_flag $src_path
+    }
   }
   else {
-    Write-Host "vlog $src_path"
+    if ($UVM_FLAG) {
+      vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh -$lang $custom_flag $src_path
+    }
+    else {
+      vlog -$lang $custom_flag $src_path
+    }
   }
   Write-Host "Copilation of $src_path completed"
+}
+else {
+  Write-Host "Copilation of $src_path unsuccesfull, langauge not correctly defined"
+  return -2
 }
 
 #=======================================================================================================#
@@ -181,24 +216,13 @@ if ($verilogf -or $SVf) {
 
 if ($f) {
   if ($vhdlf) {}
-  if ($mix) {
-    $custom_flag = "-mixedsvvh"
-  }
+
   Write-Host "Reading list file (VHDL)"
   if ($syn) {
     vcom -F $n -$VHDL -check_synthesis $custom_flag
   }
   else {
     vcom -F $n -$VHDL $custom_flag
-  }
-                
+  }               
 }
-else {
-  if ($UVM_FLAG) {
-    vlog +incdir+$UVM/src $UVM/src/uvm_pkg.sv $UVM/src/uvm_macros.svh -F $n
-  }
-  else {
-    vlog -f $n
-  }
-  return 0
-}
+return 0

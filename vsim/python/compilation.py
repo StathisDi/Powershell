@@ -56,10 +56,15 @@ class files:
             and self.lang != "93"
             and self.lang != "87"
             and self.lang != "verilog"
-            and self.lang != "SV"
+            and self.lang != "vlog01compat"
+            and self.lang != "vlog95compat"
+            and self.lang != "sv"
+            and self.lang != "sv05compat"
+            and self.lang != "sv09compat"
+            and self.lang != "sv12compat"
         ):
             print(
-                "Language defined in config file is not valid.\nValid options are:\n\tVHDL 2008\n\tVHDL 2002\n\tVHDL 93\n\tVHDL 87\n\tverilog\n\tSV"
+                "Language defined in config file is not valid.\nValid options are:\n\tVHDL 2008\n\tVHDL 2002\n\tVHDL 93\n\tVHDL 87\n\tverilog\n\tvlog01compat\n\tvlog95compat\n\tsv\n\tsv05compat\n\tsv09compat\n\tsv12compat"
             )
             exit()
         self.order = order
@@ -134,7 +139,7 @@ class configuration:
 
         # Parse the compilation/project path
         if "compilation_path" in self.config_data:
-            self.source_dir = self.config_data.get("compilation_path")
+            self.prj_dir = self.config_data.get("compilation_path")
         else:
             print("No 'compilation_path' has been defined in the configuration file")
             exit()
@@ -152,6 +157,8 @@ class configuration:
         else:
             print("No 'path_bash' has been defined in the configuration file")
             exit()
+        # Create list of libraries
+        self.libs = []
 
         # Parse the file section (get instruction for RTL files and libraries)
         self.files_length = 0
@@ -170,6 +177,7 @@ class configuration:
                         f.get("MIXED"),
                     )
                 )
+                self.add_lib(f.get("LIBRARY"))
         else:
             print("No 'FILES' has been defined in the configuration file")
             exit()
@@ -190,6 +198,7 @@ class configuration:
                         f.get("MIXED"),
                     )
                 )
+                self.add_lib(f.get("LIBRARY"))
         else:
             print("No 'LIST_FILES' has been defined in the configuration file")
 
@@ -209,9 +218,14 @@ class configuration:
         else:
             print("Json file does not include configuration for simulation")
 
+    # Add libraries to the list
+    def add_lib(self, lib):
+        if lib not in self.libs:
+            self.libs.append(lib)
+
     def print_me(self):
         print("Configuration:")
-        print("Working path: ", self.source_dir)
+        print("Working path: ", self.prj_dir)
         print("\nCompilation of RTL files: ")
         for x in self.fi:
             print("   ", x)
@@ -223,11 +237,19 @@ class configuration:
             print("   ", self.sim_conf)
 
 
-def run(cmd):
+# Function to run powershell command
+def pwsh_run(cmd):
     return subprocess.run(["pwsh.exe", "-Command", cmd], stdout=sys.stdout)
 
 
-def compile_windows(files, list_files, path):
+# Function to compile files for windows
+def compile_windows(files, list_files, path, prj_path, libs):
+    # clean all libraries in the project folder
+    for x in libs:
+        command = (
+            path + "compile.ps1" + " -prj_path " + prj_path + " -work " + x + " -clean"
+        )
+        pwsh_run(command)
     size = len(files) + len(list_files)
     ordered_list = [None] * size
     for f in files:
@@ -236,7 +258,6 @@ def compile_windows(files, list_files, path):
         ordered_list[fi.order - 1] = fi
     for x in ordered_list:
         if x.get_ty() == "file":
-            # print(x.get_ty(), x)
             flags = ""
             if x.check_syn == "True":
                 flags = " -syn"
@@ -247,20 +268,23 @@ def compile_windows(files, list_files, path):
             files = x.hier
             for f in files:
                 command = (
-                    path + "compile.sh"
+                    path + "compile.ps1"
                     " -src_path "
                     + x.src_path
                     + "/"
                     + f
+                    + " -prj_path "
+                    + prj_path
                     + " -lang "
                     + x.lang
                     + " -work "
                     + x.lib
                     + flags
                 )
-                print(command)
+                pwsh_run(command)
 
         elif x.get_ty() == "list":
+            # @TODO fix the list compilation, need to spilt the verilog from vhdl, verilog we have to read the file
             print(x.get_ty(), x)
         else:
             print("ERROR: not valid type")
@@ -280,7 +304,7 @@ if __name__ == "__main__":
     OS = platform.system()
     print(OS)
     if OS == "Windows":
-        compile_windows(conf.fi, conf.fi_list, conf.path_pwsh)
+        compile_windows(conf.fi, conf.fi_list, conf.path_pwsh, conf.prj_dir, conf.libs)
     elif OS == "Linux":
         print("Helo Linux")
         # @TODO complete the compilation for linux (call of script)

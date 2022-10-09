@@ -1,7 +1,7 @@
 {
-  "path_pwsh": "./powershell/",
-  "path_bash": "./bash/",
-  "compilation_path": "work_path",
+  "path_pwsh": "..\\powershell\\",
+  "path_bash": "..\\bash\\",
+  "compilation_path": "prj_work_path",
   "FILES": [
     {
       "PARENT_PATH": "src_path1",
@@ -31,7 +31,7 @@
   "LIST_FILES": [
     {
       "PATH": "src_path",
-      "LIBRARY": "work",
+      "LIBRARY": "work2",
       "LANGUAGE": "2008",
       "ORDER": 3,
       "check_for_synthesis": "False",
