@@ -292,7 +292,21 @@ def compile_windows(files, list_files, path, prj_path, libs):
 
 
 def simulation_windows(sim_conf):
-    print("simulation windows")
+    # @TODO need to fix simulation function windows
+    print("Simulation function not supported yet")
+    exit()
+
+
+# @TODO Function to compile files for linux
+def compile_linux(files, list_files, path, prj_path, libs):
+    print("Compilation for linux not supported yet")
+    exit()
+
+
+def simulation_linux(sim_conf):
+    # @TODO need to fix simulation function linux
+    print("Simulation function not supported yet")
+    exit()
 
 
 if __name__ == "__main__":
@@ -307,7 +321,7 @@ if __name__ == "__main__":
         compile_windows(conf.fi, conf.fi_list, conf.path_pwsh, conf.prj_dir, conf.libs)
     elif OS == "Linux":
         print("Helo Linux")
-        # @TODO complete the compilation for linux (call of script)
+        compile_linux(conf.fi, conf.fi_list, conf.path_pwsh, conf.prj_dir, conf.libs)
     else:
         print("Not supported OS!")
         exit()
@@ -318,7 +332,7 @@ if __name__ == "__main__":
                 simulation_windows(conf.sim_conf)
             elif OS == "Linux":
                 print("Helo Linux")
-                # @TODO complete the compilation for linux (call of script)
+                simulation_linux(conf.sim_conf)
             else:
                 print("Not supported OS!")
                 exit()
