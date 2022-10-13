@@ -46,9 +46,9 @@ if (($help) -or (!$src_path)) {
     Write-Host "This script can be used to compile one or multiple HDL files."
     Write-Host "It requres as an input the path to a file"
     Write-Host "It requires either src_path or clean argument"
-    Write-Host "The `""$src_path "`" should be a path to a directory or file."
+    Write-Host "The `"-src_path`" should be a path to a directory or file."
     Write-Host "This script can be used to compile one or multiple HDL files."
-    Write-Host "It requres as an input the path to a file or to a directory with all the HDL Files"
+    Write-Host "It requres as an input the path to a file or to an HDL file that lists all the VHDL Files"
     Write-Host "It requires either src_path or clean argument"
     Write-Host "-src_path : path to file"
     Write-Host "-lang     : Specify a string that is the HDL langauge to be used (and its version)"
@@ -74,7 +74,7 @@ if (($help) -or (!$src_path)) {
     Write-Host "-UVM      : Specifies the UVM home directory. If left empty together with an .sv file, the compilation is done as simple sv."
     Write-Host "-mix      : Use this command while compilling VHDL it will compile using the mixedsvvh argument"
     Write-Host "-help     : Prints this message"
-    return -3
+    return 0
   }
 }
 
@@ -89,7 +89,7 @@ if ((-not (Test-Path $src_path))) {
   Write-Host "Path or file argument missing or wrong."
   Write-Host "The `""$src_path "`" should be a path to a directory or file."
   Write-Host "This script can be used to compile one or multiple HDL files."
-  Write-Host "It requres as an input the path to a file or to a directory with all the HDL Files"
+  Write-Host "It requres as an input the path to a file or to an HDL file that lists all the VHDL Files"
   Write-Host "It requires either src_path or clean argument"
   Write-Host "-src_path : path to file"
   Write-Host "-lang     : Specify a string that is the HDL langauge to be used (and its version)"
