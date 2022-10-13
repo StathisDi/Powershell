@@ -4,6 +4,21 @@ This repository includes powershell scripts for different uses.
 
 ## Vsim
 
+### Python
+
+Python executable for parsing the configuration file and calling the appropriate scripts.
+
+### powershell
+
+Scripts for Phowershell shell.
+
+1) Compile script for vsim: can compile vhdl, verilog, and systemverilog
+2) Simulation script for vsim: starts a simulation in vsim, either in gui or command line
+
+### bash
+
+Scripts for bash shell.
+
 1) Compile script for vsim: can compile vhdl, verilog, and systemverilog
 2) Simulation script for vsim: starts a simulation in vsim, either in gui or command line
 
